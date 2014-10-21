@@ -67,60 +67,33 @@ module.exports = function(grunt) {
         files: '<%= assets.core.css %>'
       }
     },
-    nodemon: {
-      dev: {
-        script: 'server.js',
-        options: {
-          args: [],
-          ignore: ['node_modules/**'],
-          ext: 'js,html',
-          nodeArgs: ['--debug'],
-          delayTime: 1,
-          cwd: __dirname
-        }
-      }
-    },
-    concurrent: {
-      tasks: ['nodemon', 'watch'],
-      options: {
-        logConcurrentOutput: true
+    env: {
+      test: {
+        NODE_ENV: 'development'
       }
     },
     mochaTest: {
-      options: {
-        reporter: 'spec',
-        require: [
-          'server.js',
-          function() {
-            require('meanio/lib/util').preload(__dirname + '/packages/**/server', 'model');
-          }
-        ]
-      },
-      src: ['packages/**/server/tests/**/*.js']
-    },
-    env: {
       test: {
-        NODE_ENV: 'test'
-      }
-    },
-    karma: {
-      unit: {
-        configFile: 'karma.conf.js'
+        options: {
+          reporter: 'spec',
+          captureFile: 'results.txt', // Optionally capture the reporter output to a file
+          quiet: false // Optionally suppress output to standard out (defaults to false)
+        },
+        src: ['src/**/test/*-test.js']
       }
     }
   });
 
   //Load NPM tasks
   require('load-grunt-tasks')(grunt);
-
+  
   //Default task(s).
   if (process.env.NODE_ENV === 'production') {
     grunt.registerTask('default', ['clean', 'cssmin', 'uglify', 'concurrent']);
-  } else {
-    grunt.registerTask('default', ['clean', 'jshint', 'csslint']);
+  }
+  else {
+    grunt.registerTask('default', ['clean', 'jshint', 'csslint', 'env:test', 'mochaTest']);
   }
 
-  //Test task.
-  grunt.registerTask('test', ['env:test', 'mochaTest', 'karma:unit']);
-  
+
 };

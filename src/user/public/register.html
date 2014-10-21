@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title></title>
+    <link rel='stylesheet' href='/public/css/style.css' />
+    <script src="/public/lib/jquery/dist/jquery.js"></script>
+    <script src="/public/lib/angular/angular.js"></script>
+    <script src="/public/lib/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+    <script src="/public/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="/public/lib/angular-resource/angular-resource.js"></script>
+    <script src="/public/js/userApp.js"></script>
+    <script src="/public/js/userCtl.js"></script>
+</head>
+
+<body data-ng-app="userApp" data-ng-controller="registerCtl">
+    <h1>Register</h1>
+
+    <p>
+        <input type="text" name="name" type="text" data-ng-model="registerForm.name" placeholder="Full Name" />
+    </p>
+    <p>
+        <input type="text" name="username" type="email" data-ng-model="registerForm.username" placeholder="Email" />
+    </p>
+    <p>
+        <input type="password" name="password" type="password" data-ng-model="registerForm.password" placeholder="Password" />
+    </p>
+    <p>
+        <input type="password" name="passwordConfirm" type="password" data-ng-model="registerForm.passwordConfirm" placeholder="Confirm Password" data-confirm-value="registerForm.password" />
+    </p>
+    <p>
+        <input type="submit" name="submit" value="Register" data-ng-click="register()" />
+    </p>
+</body>
+
+</html>

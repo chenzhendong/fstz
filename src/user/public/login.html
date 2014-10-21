@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title></title>
+    <link rel='stylesheet' href='/public/css/style.css' />
+    <script src="/public/lib/jquery/dist/jquery.js"></script>
+    <script src="/public/lib/angular/angular.js"></script>
+    <script src="/public/lib/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+    <script src="/public/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="/public/lib/angular-resource/angular-resource.js"></script>
+    <script src="/public/js/userApp.js"></script>
+    <script src="/public/js/userCtl.js"></script>
+</head>
+
+<body data-ng-app="userApp" data-ng-controller="loginCtl">
+    <h1>Login</h1>
+    <div>
+        <div>
+            <label>Email:</label>
+            <input type="text" name="username" type="email" data-ng-model="loginForm.username" />
+        </div>
+        <div>
+            <label>Password:</label>
+            <input type="password" name="password" type="password" data-ng-model="loginForm.password" />
+        </div>
+        <div>
+            <input type="submit" value="Log In" data-ng-click="login()" />
+        </div>
+    </div>
+</body>
+
+</html>

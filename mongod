@@ -1,0 +1,2 @@
+cd /home/ubuntu/workspace
+nohup mongod --bind_ip=$IP --dbpath=data --nojournal --rest "$@" > mongodb.log 2>&1 &
