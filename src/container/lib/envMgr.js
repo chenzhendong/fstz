@@ -6,7 +6,7 @@ var fs = require('fs'),
 
 function EnvMgr() {
 
-     global.envMgr = this;
+    global.envMgr = this;
     this.nconf = nconf;
     //Locate config Directory
     var projectRootDirectory = path.resolve(__dirname, '../../../');

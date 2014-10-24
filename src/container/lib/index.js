@@ -6,6 +6,7 @@ function Container(){
     this.envMgr = require('./envMgr');
     this.server = require('./server');
     this.authMgr = require('./authMgr');
+    this.dbMgr =require('./dbMgr');
     this.modules = {};
     
     //mapping bower to /public/js/lib

@@ -11,16 +11,16 @@ app.factory('registerService', ['$resource', function($resource) {
 
 app.controller('loginCtl', ['$scope', 'loginService', function($scope, loginService) {
     $scope.login=function(){
-        loginService.save($scope.loginForm, function(){
-            console.log($scope.loginForm);
+        loginService.save($scope.loginForm, function(res){
+            console.log(res.user);
         });
     }
 }]);
 
 app.controller('registerCtl', ['$scope', 'registerService', function($scope, loginService) {
     $scope.register=function(){
-        loginService.save($scope.registerForm, function(){
-            console.log($scope.registerForm);
+        loginService.save($scope.registerForm, function(res){
+            console.log(res.user);
         });
     }
 }]);

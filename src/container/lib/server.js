@@ -2,6 +2,7 @@
 var envMgr = require('./envMgr');
 var apiMgr = require('./apiMgr');
 var authMgr = require('./authMgr');
+var errMgr = require('./errMgr');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var session = require('express-session');
@@ -21,6 +22,7 @@ function Server() {
     
     var host = nconf.get('server:host');
     var port = nconf.get('server:port');
+    
     app.listen(port, host);
 }
 
@@ -31,6 +33,7 @@ Server.prototype.configure = function() {
     //app.use(session({resave:true, saveUninitialized: true, secret: 'phalanxim', cookie: { maxAge: 60000 }}));
     //app.use(authMgr.passport.initialize());
     //app.use(authMgr.passport.session());
+    app.use(errMgr.handleRestError);
 }
 
 // Add a single rest route to express.
