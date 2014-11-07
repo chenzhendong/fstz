@@ -1,69 +1,92 @@
 'use strict';
-var envMgr = require('./envMgr');
-var apiMgr = require('./apiMgr');
-var authMgr = require('./authMgr');
-var errMgr = require('./errMgr');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-var session = require('express-session');
-var express = require('express');
-var app = express();
-
-var REST_PREFIX = '/rest/v1';
-var PAGE_PREFIX = '/pages';
+var path = require('path'),
+    cookieParser = require('cookie-parser'),
+    bodyParser = require('body-parser'),
+    session = require('express-session'),
+    express = require('express'),
+    app = express(),
+    log = require('./logMgr').getLogger('server'),
+    envMgr = require('./envMgr'),
+    errMgr = require('./errMgr'),
+    domain = require('domain');
 
 function Server() {
     this.express = express;
     this.app = app;
-    this.modules = {};
     var nconf = envMgr.nconf;
-    
-    this.configure();
-    
-    var host = nconf.get('server:host');
-    var port = nconf.get('server:port');
-    
-    app.listen(port, host);
+
+    this.init();
+
+    this.host = nconf.get('server:host');
+    this.port = nconf.get('server:port');
+
 }
 
 
-Server.prototype.configure = function() {
+Server.prototype.REST_PREFIX = '/rest/v1';
+Server.prototype.WEB_PREFIX = '/pages';
+
+
+Server.prototype.init = function() {
     app.use(bodyParser.json());
-    app.use(bodyParser.urlencoded({ extended: true }) );
+    app.use(bodyParser.urlencoded({
+        extended: true
+    }));
     //app.use(session({resave:true, saveUninitialized: true, secret: 'phalanxim', cookie: { maxAge: 60000 }}));
     //app.use(authMgr.passport.initialize());
     //app.use(authMgr.passport.session());
-    app.use(errMgr.handleRestError);
-}
+    //app.use(this.container.errMgr.handleRestError);
+
+    //mapping bower libs to /public/js/lib
+    var prjRoot = path.resolve(__dirname, '..', '..', '..');
+    this.mappingStaticResource(path.resolve(prjRoot, 'bower_components'), '/public/lib');
+};
 
 // Add a single rest route to express.
-Server.prototype.addRestRoute =  function(url, apiName) {
-    url = REST_PREFIX + url;
-    console.log('Mapping rest url [' + url + '] to api [' + apiName+ ']...');
-    this.app.use(url, function(req,res,next){
-        return apiMgr.api[apiName](req,res,next);
+Server.prototype.addRestRoute = function(url, apiFunc, authorizedRoles) {
+    var mappingUrl = this.REST_PREFIX + url;
+    log.info('Mapping rest url [', mappingUrl, ']...');
+    app.use(mappingUrl, function(req, res, next) {
+
+        global.authMgr.auth(authorizedRoles, req, function(err) {
+            if (err) {
+                err.isRestfulSvc = true;
+                global.errMgr.handleError(err, req, res);
+            }
+            else {
+                apiFunc(req, res, next);
+            }
+        });
     });
-}
+};
 
 // Add a single page route to express.
-Server.prototype.addPageRoute =  function(url, callback) {
-    url = PAGE_PREFIX + url;
-    console.log('Mapping page url [' + url + ']...');
-    this.app.use(url, function(req,res,next){
-        return callback(req,res,next);
+Server.prototype.addWebRoute = function(url, apiFunc, authorizedRoles) {
+    var mappingUrl = this.WEB_PREFIX + url;
+    log.info('Mapping web url [', mappingUrl, ']...');
+    app.use(mappingUrl, function(req, res, next) {
+        global.authMgr.auth(authorizedRoles, req, function(err) {
+            if (err) {
+                global.errMgr.handleError(err, req, res);
+            }
+            else {
+                apiFunc(req, res, next);
+            }
+        });
     });
-}
+};
 
-//call restRoute function handle to add rest services for the module.
-Server.prototype.addRestRoutesFromModule = function(restRoute){
-    restRoute(this);
-}
 
 //add public resources from module.
-Server.prototype.mappingStaticResource = function(staticPath, mappingUrl){
-    console.log('Mapping static path[' + staticPath + '] to ['+ mappingUrl +']...');
+Server.prototype.mappingStaticResource = function(staticPath, mappingUrl) {
+    log.info('Mapping static path[' + staticPath + '] to [' + mappingUrl + ']...');
     app.use(mappingUrl, express.static(staticPath));
-}
+};
+
+Server.prototype.listen = function() {
+    log.info('Server is listening now on [', this.host, ': ', this.port, ']...');
+    app.listen(this.port, this.host);
+};
 
 
 module.exports = new Server();

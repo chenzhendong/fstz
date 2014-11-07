@@ -1,8 +1,9 @@
 'use strict';
 
 var container = require('./src/container');
-var user = require('./src/user');
-var web = require('./src/web');
+var userModule = require('./src/user');
 
-container.register(web);
-container.register(user);
+container.register(userModule);
+
+
+container.startServer();

@@ -6,7 +6,6 @@ var fs = require('fs'),
 
 function EnvMgr() {
 
-    global.envMgr = this;
     this.nconf = nconf;
     //Locate config Directory
     var projectRootDirectory = path.resolve(__dirname, '../../../');
@@ -18,17 +17,23 @@ function EnvMgr() {
     //Load Profile such as 'development', 'production', which will override 'default'
     var envProfile = nconf.get('NODE_ENV');
     this.PROFILE_STORE = envProfile;
-    console.log('Current environment profile is: ' + this.PROFILE_STORE);
-    console.log(configProfileDirectory + '...' + fs.existsSync(configProfileDirectory) + '...');
+    if(this.PROFILE_STORE){
+        console.log('Current environment profile is: ' + this.PROFILE_STORE);
+    } else {
+        console.log('Env does not define Current environment profile, default profile will be used...');
+    }
+    
     if (configProfileDirectory && fs.existsSync(configProfileDirectory)) {
 
-        var envProfilePath = path.resolve(configProfileDirectory, envProfile + '.json');
-        console.log('Loading profile on path [' + envProfilePath + ']...');
-        if (fs.existsSync(envProfilePath)) {
-            nconf.add(this.PROFILE_STORE, {
-                type: 'file',
-                file: envProfilePath
-            });
+        if(this.PROFILE_STORE){
+            var envProfilePath = path.resolve(configProfileDirectory, envProfile + '.json');
+            console.log('Loading profile on path [' + envProfilePath + ']...');
+            if (fs.existsSync(envProfilePath)) {
+                nconf.add(this.PROFILE_STORE, {
+                    type: 'file',
+                    file: envProfilePath
+                });
+            }
         }
 
         var defaultProfilePath = path.resolve(configProfileDirectory, 'default.json');

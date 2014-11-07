@@ -1,56 +1,52 @@
 'use strict';
-var passport = require('passport');
-var cache = require('node-cache');
-var uuid = require("uuid");
-var moment = require("moment");
-var LocalStrategy = require('passport-local').Strategy;
+var passport = require('passport'),
+    cacheMgr = require('./cacheMgr'),
+    crypto = require('crypto'),
+    log = require('./logMgr').getLogger('authMgr'),
+    uuid = require("uuid");
 
-function AuthMgr() {
-    
-    global.authMgr = this;
-    this.passport = passport;
-    this.tokenCache = cache;
-    /*
-    //Serialize sessions
-    passport.serializeUser(function(user, done) {
-        done(null, user.id);
-    });
 
-    passport.deserializeUser(function(user, done) {
-        done(null, user.id);
-    });
+function AuthMgr() {}
 
-    //Use local strategy
-    passport.use(new LocalStrategy({
-            usernameField: 'username',
-            passwordField: 'password'
-        },
-        function(username, password, done) {
-            var user = {
-                id: '1',
-                username: 'admin',
-                password: 'admin',
-                name: 'Zhendong Chen'
-            };
+AuthMgr.prototype.createAuthTokenInCache = function(user, callback) {
+    var token = crypto.createHash('sha1').update(user.toString()).digest('base64');
+    var err;
+    if(!global.cacheMgr.set(token, user)){
+        err = new Error('Failed to set token on cache ...');
+    }
+    return callback(err, token);
+};
 
-            if (username !== user.username) {
-                return done(null, false, {
-                    message: 'Incorrect username.'
+AuthMgr.prototype.getUserByToken = function(token) {
+    return global.cacheMgr.get(token);
+};
+
+/*Compare required role list with user role list, if one role match, grant the access  */
+AuthMgr.prototype.auth = function(requiredRoles, req, callback) {
+    var err;
+    if (requiredRoles && requiredRoles.length > 0) {
+        var token = req.header('Authorization');
+        if (token) {
+            var user = cacheMgr.get(token);
+            if(user){
+                req.user = user;
+                requiredRoles.forEach (function(role){
+                    if (user.hasRole(role)) {
+                        return callback(err);
+                    }
                 });
             }
-            if (password !== user.password) {
-                return done(null, false, {
-                    message: 'Incorrect password.'
-                });
-            }
-
-            return done(null, user);
         }
-    ));
-    */
-}
+    } else {
+        return callback(err);
+    }
+    err = new Error('Unauthorized visit to url [' + req.originalUrl + ']...');
+    err.httpStatusCode = 401;
+    return callback(err);
+};
 
-AuthMgr.prototype.login = function (username, password) {
+
+/*    
     if(true){
         var token = uuid.v4();
         this.tokenCache.set(token, moment());
@@ -69,6 +65,6 @@ AuthMgr.prototype.authToken = function (token) {
         return false;
     }
 }
-
+*/
 
 module.exports = new AuthMgr();
