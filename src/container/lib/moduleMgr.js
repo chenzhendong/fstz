@@ -15,7 +15,6 @@ function ModuleMgr() {
     global.cacheMgr = require('./cacheMgr');
     global.authMgr = require('./authMgr');
     
-    global.apiMgr = require('./apiMgr');
     global.routeMgr = require('./routeMgr');
     global.server = require('./server');
     
@@ -25,7 +24,11 @@ ModuleMgr.prototype.register = function(module) {
     
     this.modules[module.name] = module;
     
-    module.init();
+    module.rootPath = path.resolve(module.libPath, '..');
+    module.model = require(path.resolve(module.libPath, 'model'));
+    module.api = require(path.resolve(module.libPath, 'api'));
+    module.route = require(path.resolve(module.libPath, 'route'));
+    
     global.routeMgr.register(module);
     
     //Mapping contents in public directory under module directory to /public url 

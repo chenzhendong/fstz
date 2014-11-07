@@ -30,19 +30,26 @@ AuthMgr.prototype.auth = function(requiredRoles, req, callback) {
             var user = cacheMgr.get(token);
             if(user){
                 req.user = user;
-                requiredRoles.forEach (function(role){
-                    if (user.hasRole(role)) {
+                for(var idx in requiredRoles){
+                    if (user.hasRole(requiredRoles[idx])) {
                         return callback(err);
                     }
-                });
+                }
+                err = new Error('User\'s role don\'t have authority to visit the url [' + req.originalUrl + ']...');
+            } else {
+                err = new Error('Cannot found token in cache, unauthorized visit to url [' + req.originalUrl + ']...');
             }
+        } else {
+            err = new Error('Cannot found token in request header, unauthorized visit to url [' + req.originalUrl + ']...');
         }
     } else {
         return callback(err);
     }
-    err = new Error('Unauthorized visit to url [' + req.originalUrl + ']...');
-    err.httpStatusCode = 401;
-    return callback(err);
+    
+    if(err){
+        err.httpStatusCode = 401;
+        return callback(err);
+    }
 };
 
 

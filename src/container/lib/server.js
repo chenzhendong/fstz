@@ -8,6 +8,7 @@ var path = require('path'),
     log = require('./logMgr').getLogger('server'),
     envMgr = require('./envMgr'),
     errMgr = require('./errMgr'),
+    swig = require('swig'),
     domain = require('domain');
 
 function Server() {
@@ -43,12 +44,12 @@ Server.prototype.init = function() {
 };
 
 // Add a single rest route to express.
-Server.prototype.addRestRoute = function(url, apiFunc, authorizedRoles) {
+Server.prototype.addRestRoute = function(url, apiFunc, route) {
     var mappingUrl = this.REST_PREFIX + url;
     log.info('Mapping rest url [', mappingUrl, ']...');
     app.use(mappingUrl, function(req, res, next) {
 
-        global.authMgr.auth(authorizedRoles, req, function(err) {
+        global.authMgr.auth(route.roles, req, function(err) {
             if (err) {
                 err.isRestfulSvc = true;
                 global.errMgr.handleError(err, req, res);
@@ -61,16 +62,35 @@ Server.prototype.addRestRoute = function(url, apiFunc, authorizedRoles) {
 };
 
 // Add a single page route to express.
-Server.prototype.addWebRoute = function(url, apiFunc, authorizedRoles) {
+Server.prototype.addWebRoute = function(url, apiFunc, route) {
     var mappingUrl = this.WEB_PREFIX + url;
     log.info('Mapping web url [', mappingUrl, ']...');
     app.use(mappingUrl, function(req, res, next) {
-        global.authMgr.auth(authorizedRoles, req, function(err) {
+        global.authMgr.auth(route.roles, req, function(err) {
             if (err) {
                 global.errMgr.handleError(err, req, res);
             }
             else {
-                apiFunc(req, res, next);
+                apiFunc(req, res, next, function(model) {
+                    var view = route.view;
+                    if (view && model) {
+                        swig.renderFile(route.view, model, function (err, output) {
+                            if(!err){
+                                res.send(output).end();
+                            }
+                        });
+                        return;
+                    }
+                    else if (!view) {
+                        err = new Error('Cannot find html tmeplate for reqest url, check module route.js file ...');
+                    }
+                    else {
+                        err = new Error('Cannot find data model for reqest url, check if module api.js file return data model ...');
+                    }
+                    err.level = 'error';
+                    err.httpStatusCode = 500;
+                    global.errMgr.handleError(err, req, res);
+                });
             }
         });
     });
