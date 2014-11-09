@@ -37,7 +37,7 @@ AuthMgr.prototype.auth = function(requiredRoles, req, callback) {
                 }
                 err = new Error('User\'s role don\'t have authority to visit the url [' + req.originalUrl + ']...');
             } else {
-                err = new Error('Cannot found token in cache, unauthorized visit to url [' + req.originalUrl + ']...');
+                err = new Error('Security token missing / expired, please relogin with username / password, unauthorized visit to url [' + req.originalUrl + ']...');
             }
         } else {
             err = new Error('Cannot found token in request header, unauthorized visit to url [' + req.originalUrl + ']...');

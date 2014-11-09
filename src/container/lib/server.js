@@ -33,11 +33,7 @@ Server.prototype.init = function() {
     app.use(bodyParser.urlencoded({
         extended: true
     }));
-    //app.use(session({resave:true, saveUninitialized: true, secret: 'phalanxim', cookie: { maxAge: 60000 }}));
-    //app.use(authMgr.passport.initialize());
-    //app.use(authMgr.passport.session());
-    //app.use(this.container.errMgr.handleRestError);
-
+    
     //mapping bower libs to /public/js/lib
     var prjRoot = path.resolve(__dirname, '..', '..', '..');
     this.mappingStaticResource(path.resolve(prjRoot, 'bower_components'), '/public/lib');

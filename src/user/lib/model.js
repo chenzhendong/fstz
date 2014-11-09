@@ -61,7 +61,9 @@ function Model() {
       type: String,
       default: 'local'
     },
-    salt: String,
+    salt: {
+      type: String
+    },
     lastLoginTime: Date,
     isActive: {
       type: Boolean,
@@ -150,7 +152,18 @@ function Model() {
       if (!password || !this.salt) return '';
       var salt = new Buffer(this.salt, 'base64');
       return crypto.pbkdf2Sync(password, salt, 10000, 64).toString('base64');
-    }
+    },
+    
+    /**
+     * Get JSON String without some sensitive fields
+     * 
+     */
+     toJSON: function(){
+        var user = this.toObject();
+        delete user.salt;
+        delete user.hashed_password;
+        return user;
+     }
   };
 
   mongoose.model('User', UserSchema);

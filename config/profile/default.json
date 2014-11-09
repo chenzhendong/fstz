@@ -8,7 +8,7 @@
     },
     "database":{
         "mongo":{
-            "dbUrl":"mongodb://localhost/phalanxim"
+            "dbUrl":"mongodb://localhost/nodeframe"
         }
     }
     
