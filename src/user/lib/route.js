@@ -3,8 +3,16 @@
 function Route(){
 
     this.rest = {
-        '/users': {
-            api: 'getUsers',
+        '/all': {
+            api: 'getUsersRest',
+            roles: ['admin']
+        },
+        '/update/:id': {
+            api: 'adminUpdateUserRest',
+            roles: ['admin']
+        },
+        '/add': {
+            api: 'adminAddUserRest',
             roles: ['admin']
         },
         '/profile': {
@@ -14,7 +22,7 @@ function Route(){
         '/login':  {
             api: 'loginRest'
         },
-        '/register':  {
+        '/register': {
             api: 'registerRest'
         }
     };

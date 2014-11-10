@@ -5,7 +5,10 @@ function LogMgr(){
 }
 
 LogMgr.prototype.getLogger = function(loggerName){
-    return log4js.getLogger(loggerName);    
+    //TODO: Read log level from env
+    var log = log4js.getLogger(loggerName);    
+    log.setLevel('INFO');
+    return log;
 }
 
 module.exports = new LogMgr();

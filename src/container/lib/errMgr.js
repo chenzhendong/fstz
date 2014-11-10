@@ -9,8 +9,12 @@ ErrMgr.prototype.handleError = function (err, req, res) {
 
     if(!err) return;
     if(!err.level){
-        err.level = 'debug';
+        err.level = 'error';
     }
+    if(!err.httpStatusCode){
+        err.httpStatusCode = 500;
+    }
+    err.isRestfulSvc = req.isRestful;
     
     log[err.level](err.message);
     

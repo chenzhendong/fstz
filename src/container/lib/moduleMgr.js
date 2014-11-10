@@ -20,19 +20,19 @@ function ModuleMgr() {
     
 }
 
-ModuleMgr.prototype.register = function(module) {
+ModuleMgr.prototype.register = function(myModule) {
     
-    this.modules[module.name] = module;
+    this.modules[myModule.name] = myModule;
     
-    module.rootPath = path.resolve(module.libPath, '..');
-    module.model = require(path.resolve(module.libPath, 'model'));
-    module.api = require(path.resolve(module.libPath, 'api'));
-    module.route = require(path.resolve(module.libPath, 'route'));
+    myModule.rootPath = path.resolve(myModule.libPath, '..');
+    myModule.model = require(path.resolve(myModule.libPath, 'model'));
+    myModule.api = require(path.resolve(myModule.libPath, 'api'));
+    myModule.route = require(path.resolve(myModule.libPath, 'route'));
     
-    global.routeMgr.register(module);
+    global.routeMgr.register(myModule);
     
     //Mapping contents in public directory under module directory to /public url 
-    global.server.mappingStaticResource(path.resolve(module.libPath, '..', 'public'), '/public');
+    global.server.mappingStaticResource(path.resolve(myModule.libPath, '..', 'public'), '/public');
 
     
 };

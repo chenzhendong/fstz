@@ -24,12 +24,26 @@ function Server() {
 }
 
 
-Server.prototype.REST_PREFIX = '/rest/v1';
-Server.prototype.WEB_PREFIX = '/pages';
+var REST_PREFIX = '/rest/v1';
+//Server.prototype.WEB_PREFIX = '/pages';
 
 
 Server.prototype.init = function() {
-    app.use(bodyParser.json());
+    app.use(bodyParser.json(), function(err, req, res, next) {
+        
+        if(req.originalUrl.slice(0, REST_PREFIX.length) == REST_PREFIX){
+            req.isRestful = true;
+        }
+        
+        if(err){
+            err.message = 'Failed to parse the body: ' + err.message;
+            err.httpStatusCode = 400;
+            err.isRestfulSvc = req.isRestful;
+            global.errMgr.handleError(err, req, res);
+        } else {
+            next();
+        }
+    });
     app.use(bodyParser.urlencoded({
         extended: true
     }));
@@ -37,17 +51,19 @@ Server.prototype.init = function() {
     //mapping bower libs to /public/js/lib
     var prjRoot = path.resolve(__dirname, '..', '..', '..');
     this.mappingStaticResource(path.resolve(prjRoot, 'bower_components'), '/public/lib');
+    app.get('/', function(req, res, next){
+        res.redirect('/web/index.html');
+    });
 };
 
 // Add a single rest route to express.
 Server.prototype.addRestRoute = function(url, apiFunc, route) {
-    var mappingUrl = this.REST_PREFIX + url;
+    var mappingUrl = REST_PREFIX + url;
     log.info('Mapping rest url [', mappingUrl, ']...');
     app.use(mappingUrl, function(req, res, next) {
 
         global.authMgr.auth(route.roles, req, function(err) {
             if (err) {
-                err.isRestfulSvc = true;
                 global.errMgr.handleError(err, req, res);
             }
             else {
@@ -59,7 +75,7 @@ Server.prototype.addRestRoute = function(url, apiFunc, route) {
 
 // Add a single page route to express.
 Server.prototype.addWebRoute = function(url, apiFunc, route) {
-    var mappingUrl = this.WEB_PREFIX + url;
+    var mappingUrl = url;
     log.info('Mapping web url [', mappingUrl, ']...');
     app.use(mappingUrl, function(req, res, next) {
         global.authMgr.auth(route.roles, req, function(err) {
@@ -83,7 +99,6 @@ Server.prototype.addWebRoute = function(url, apiFunc, route) {
                     else {
                         err = new Error('Cannot find data model for reqest url, check if module api.js file return data model ...');
                     }
-                    err.level = 'error';
                     err.httpStatusCode = 500;
                     global.errMgr.handleError(err, req, res);
                 });

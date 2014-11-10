@@ -33,6 +33,13 @@ function DbMgr() {
         process.exit(0);
       });
     });
+    
+    /*provide default criteria for sort and page, could be override by parameter in req*/
+    this.defaultCriteria = {
+      skip: 0,
+      from: 0,
+      limit: 0
+    };
 }
 
 

@@ -9,6 +9,8 @@ var passport = require('passport'),
 function AuthMgr() {}
 
 AuthMgr.prototype.createAuthTokenInCache = function(user, callback) {
+    //TODO: add uuid as radom seed to get unique session token
+    //var token = crypto.createHash('sha1').update(user.toString() + uuid.v4()).digest('base64');
     var token = crypto.createHash('sha1').update(user.toString()).digest('base64');
     var err;
     if(!global.cacheMgr.set(token, user)){
@@ -29,7 +31,7 @@ AuthMgr.prototype.auth = function(requiredRoles, req, callback) {
         if (token) {
             var user = cacheMgr.get(token);
             if(user){
-                req.user = user;
+                req.userDoc = user;
                 for(var idx in requiredRoles){
                     if (user.hasRole(requiredRoles[idx])) {
                         return callback(err);
@@ -48,6 +50,7 @@ AuthMgr.prototype.auth = function(requiredRoles, req, callback) {
     
     if(err){
         err.httpStatusCode = 401;
+        err.level = 'warn';
         return callback(err);
     }
 };
