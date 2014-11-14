@@ -6,9 +6,9 @@ function CacheMgr(){
     this.cache = new NodeCache( { stdTTL: 1800, checkperiod: 120 } );
 }
 
-CacheMgr.prototype.set = function(key, obj){
+CacheMgr.prototype.set = function(key, obj, ttl){
   log.trace('Saving object ['+ obj +'] with key  ['+ key +'] on cache ...');
-  return this.cache.set(key, obj);  
+  return this.cache.set(key, obj, ttl);  
 };
 
 CacheMgr.prototype.get = function(key){

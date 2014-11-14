@@ -7,7 +7,7 @@ function LogMgr(){
 LogMgr.prototype.getLogger = function(loggerName){
     //TODO: Read log level from env
     var log = log4js.getLogger(loggerName);    
-    log.setLevel('INFO');
+    log.setLevel('ALL');
     return log;
 }
 

@@ -94,6 +94,8 @@ var addUser = function(userEntity, callback) {
     });
 };
 
+/*---------------------------  Private APIs  --------------------------------------*/
+
 var getUsers = function(criteria, callback) {
     User.find().sort(criteria.sort)
         .skip(criteria.skip)
@@ -114,7 +116,65 @@ var updateUser = function(userDoc, callback) {
     })
 };
 
-/*--------------------------------Public APIs----------------------------------------------------*/
+/*---------------------------  Rest APIs  --------------------------------------*/
+
+Api.prototype.adminAddUserRest = function(req, res, next) {
+    var userFromClient = req.body;
+
+    addUser(userFromClient, function(err, userDoc) {
+        if (err) {
+            global.errMgr.handleError(err, req, res);
+        }
+        else {
+            res.status(200).send(userDoc.toJSON()).end();
+        }
+    });
+
+};
+
+Api.prototype.adminUpdateUserRest = function(req, res, next) {
+    var err;
+    if (!req.params.id) {
+        err = new Error('Cannot find user id in request url.');
+        err.level = 'warn';
+        err.httpStatusCode = 400;
+        global.errMgr.handleError(err, req, res);
+    }
+    else {
+        var userFromClient = req.body;
+
+        getUser({
+            _id: req.params.id
+        }, function(err, userDoc) {
+            if (err) {
+                global.errMgr.handleError(err, req, res);
+            }
+            else {
+                userDoc = _.extend(userDoc, userFromClient);
+                updateUser(userDoc, function(errUpdate) {
+                    if (errUpdate) {
+                        global.errMgr.handleError(errUpdate, req, res);
+                    }
+                    else {
+                        res.status(200).send(userDoc.toJSON()).end();
+                    }
+                });
+            }
+        });
+    }
+};
+
+Api.prototype.getUsersRest = function(req, res, next) {
+    var criteria = global.dbMgr.defaultCriteria;
+    getUsers(criteria, function(err, users) {
+        if (err) {
+            global.errMgr.handleError(err, req, res);
+        }
+        else {
+            res.status(200).send(users).end();
+        }
+    });
+};
 
 Api.prototype.loginRest = function(req, res, next) {
     var form = req.body;
@@ -134,25 +194,6 @@ Api.prototype.loginRest = function(req, res, next) {
             }
         }
         global.errMgr.handleError(err, req, res);
-    });
-};
-
-Api.prototype.loginWeb = function(req, res, next) {
-    var form = req.body;
-
-    login(form.username, form.password, function(user) {
-        if (user.authenticate(form.password)) {
-            if (req.returnUrl) {
-                res.redirect(req.returnUrl);
-            }
-            else {
-                res.redirect(global.server.WEB_PREFIX + '/dashboard.html');
-            }
-        }
-        else {
-            res.redirect(global.server.WEB_PREFIX + '/index.html');
-        }
-
     });
 };
 
@@ -209,63 +250,37 @@ Api.prototype.registerRest = function(req, res, next) {
     });
 };
 
-Api.prototype.getUsersRest = function(req, res, next) {
-    var criteria = global.dbMgr.defaultCriteria;
-    getUsers(criteria, function(err, users) {
+/*---------------------------- Web APIs --------------------------------------*/
+
+Api.prototype.registerWeb = function(req, res, next) {
+    var form = req.body;
+
+    form.roles = ['user'];
+    addUser(form, function(err, user) {
         if (err) {
             global.errMgr.handleError(err, req, res);
         }
         else {
-            res.status(200).send(users).end();
-        }
-    });
-};
-
-
-Api.prototype.adminUpdateUserRest = function(req, res, next) {
-    var err;
-    if (!req.params.id) {
-        err = new Error('Cannot find user id in request url.');
-        err.level = 'warn';
-        err.httpStatusCode = 400;
-        global.errMgr.handleError(err, req, res);
-    }
-    else {
-        var userFromClient = req.body;
-
-        getUser({
-            _id: req.params.id
-        }, function(err, userDoc) {
-            if (err) {
-                global.errMgr.handleError(err, req, res);
+            if (user) {
+                req.user = user;
+                res.status(200).send(user);
             }
             else {
-                userDoc = _.extend(userDoc, userFromClient);
-                updateUser(userDoc, function(errUpdate) {
-                    if (errUpdate) {
-                        global.errMgr.handleError(errUpdate, req, res);
-                    }
-                    else {
-                        res.status(200).send(userDoc.toJSON()).end();
-                    }
-                });
+                err = new Error('User Object is null, unexpect error, check modle and db.');
+                err.httpStatusCode = 500;
+                global.errMgr.handleError(err, req, res);
             }
-        });
-    }
-};
-
-Api.prototype.adminAddUserRest = function(req, res, next) {
-    var userFromClient = req.body;
-
-    addUser(userFromClient, function(err, userDoc) {
-        if (err) {
-            global.errMgr.handleError(err, req, res);
-        }
-        else {
-            res.status(200).send(userDoc.toJSON()).end();
         }
     });
-
 };
+
+Api.prototype.loginWeb = function(req, res, next, callback) {
+    switch(req.method){
+        case 'GET':
+            return callback({});
+    }
+    
+};
+
 
 module.exports = new Api();

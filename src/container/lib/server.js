@@ -14,6 +14,7 @@ var path = require('path'),
 function Server() {
     this.express = express;
     this.app = app;
+    this.view = {};
     var nconf = envMgr.nconf;
 
     this.init();
@@ -22,7 +23,6 @@ function Server() {
     this.port = nconf.get('server:port');
 
 }
-
 
 var REST_PREFIX = '/rest/v1';
 //Server.prototype.WEB_PREFIX = '/pages';
@@ -76,6 +76,7 @@ Server.prototype.addRestRoute = function(url, apiFunc, route) {
 // Add a single page route to express.
 Server.prototype.addWebRoute = function(url, apiFunc, route) {
     var mappingUrl = url;
+    var view = this.view;
     log.info('Mapping web url [', mappingUrl, ']...');
     app.use(mappingUrl, function(req, res, next) {
         global.authMgr.auth(route.roles, req, function(err) {
@@ -84,27 +85,29 @@ Server.prototype.addWebRoute = function(url, apiFunc, route) {
             }
             else {
                 apiFunc(req, res, next, function(model) {
-                    var view = route.view;
-                    if (view && model) {
-                        swig.renderFile(route.view, model, function (err, output) {
-                            if(!err){
-                                res.send(output).end();
-                            }
-                        });
-                        return;
-                    }
-                    else if (!view) {
-                        err = new Error('Cannot find html tmeplate for reqest url, check module route.js file ...');
+                    var viewFileName = route.view;
+                    if(viewFileName){
+                        if (model) {
+                            res.status(200).send(swig.run(view[viewFileName],model)).end();
+                            return;
+                        } else {
+                            err = new Error('Cannot find data model for reqest url, check if module api.js file return the data model ...');
+                        }
                     }
                     else {
-                        err = new Error('Cannot find data model for reqest url, check if module api.js file return data model ...');
+                        err = new Error('Cannot find swig template for reqest url, check module route.js file ...');
                     }
+                    
                     err.httpStatusCode = 500;
                     global.errMgr.handleError(err, req, res);
                 });
             }
         });
     });
+};
+
+Server.prototype.addView = function(key, tpl){
+    this.view[key] = tpl;
 };
 
 
@@ -118,6 +121,8 @@ Server.prototype.listen = function() {
     log.info('Server is listening now on [', this.host, ': ', this.port, ']...');
     app.listen(this.port, this.host);
 };
+
+
 
 
 module.exports = new Server();

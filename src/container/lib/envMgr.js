@@ -11,10 +11,20 @@ function EnvMgr() {
     var projectRootDirectory = path.resolve(__dirname, '../../../');
     console.log('Project root directory is: ' + projectRootDirectory);
     var configProfileDirectory = path.resolve(projectRootDirectory, 'config/profile');
+    
+    /** Setup nconf to use (in-order):
+     * 1. Command-line arguments
+     * 2. Environment variables
+     * 3. Profile variables like 'development', 'production'
+     * 4. variables in default profile
+     */
     nconf.argv().env();
 
 
-    //Load Profile such as 'development', 'production', which will override 'default'
+    /** Load Profile such as 'development', 'production', which will override 'default', 
+     * the profile name is defined in system env as 'NODE_ENV', 
+     * the profile configuration json file is on <project_root>/config/profile directory
+     * */
     var envProfile = nconf.get('NODE_ENV');
     this.PROFILE_STORE = envProfile;
     if(this.PROFILE_STORE){
@@ -47,10 +57,6 @@ function EnvMgr() {
 
     }
 }
-
-EnvMgr.prototype.ENV_STORE = 'env';
-EnvMgr.prototype.ARGV_STORE = 'argv';
-EnvMgr.prototype.DEFAULT_STORE = 'default';
 
 
 module.exports = new EnvMgr();

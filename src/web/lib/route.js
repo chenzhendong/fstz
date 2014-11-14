@@ -1,18 +1,11 @@
 'use strict';
 
-function Route(){
-
-    this.rest = {
-        
-    };
-    
-    this.web = {
+module.exports = {
+    rest: {},
+    web: {
         '/index.html': {
-            api: 'homePage',
-            view: 'index.html'
+            'api': 'homePage',
+            'view': 'index.html'
         }
-    };
-
-}
-
-module.exports = new Route();
+    }
+};

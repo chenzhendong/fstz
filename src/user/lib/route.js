@@ -28,6 +28,10 @@ function Route(){
     };
     
     this.web = {
+        '/login': {
+            api: 'loginWeb',
+            view: 'login.swig.html'
+        }
     };
 
 }
