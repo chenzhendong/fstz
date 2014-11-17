@@ -28,7 +28,7 @@ function Route(){
     };
     
     this.web = {
-        '/login': {
+        '/login.html': {
             api: 'loginWeb',
             view: 'login.swig.html'
         }

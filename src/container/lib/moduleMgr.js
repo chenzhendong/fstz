@@ -1,8 +1,6 @@
 'use strict';
-var path = require('path'),
-    fs = require('fs'),
-    swig = require('swig');
-
+var path = require('path');
+    
 function ModuleMgr() {
     global.container = this;
 
@@ -19,7 +17,6 @@ function ModuleMgr() {
 
     global.routeMgr = require('./routeMgr');
     global.server = require('./server');
-
 }
 
 ModuleMgr.prototype.register = function(myModule) {

@@ -5,7 +5,16 @@ module.exports = {
     web: {
         '/index.html': {
             'api': 'homePage',
-            'view': 'index.html'
+            'view': 'index.swig.html'
+        },
+        '/about.html': {
+            'api': 'homePage',
+            'view': 'about.swig.html'
+        },
+        '/error.html': {
+            'api': 'homePage',
+            'view': 'error.swig.html'
         }
+        
     }
 };
