@@ -8,6 +8,10 @@ var passport = require('passport'),
 
 function AuthMgr() {}
 
+/**
+ * Create a authentication token, and put it in cache, so the restful service and
+ * web session could use token for a quick authentication.
+ * */
 AuthMgr.prototype.createAuthTokenInCache = function(user, callback) {
     //TODO: add uuid as radom seed to get unique session token
     //var token = crypto.createHash('sha1').update(user.toString() + uuid.v4()).digest('base64');
@@ -19,6 +23,7 @@ AuthMgr.prototype.createAuthTokenInCache = function(user, callback) {
     return callback(err, token);
 };
 
+/* Get user from the authentication token in cache */
 AuthMgr.prototype.getUserByToken = function(token) {
     return global.cacheMgr.get(token);
 };
@@ -56,16 +61,8 @@ AuthMgr.prototype.auth = function(requiredRoles, req, callback) {
 };
 
 
-/*    
-    if(true){
-        var token = uuid.v4();
-        this.tokenCache.set(token, moment());
-    } else {
-        
-    }
-}
 
-//token expiring on 30 min, and would be renew for each rest call
+/*token expiring on 30 min, and would be renew for each rest call
 AuthMgr.prototype.authToken = function (token) {
     var timeStamp = this.tokenCache.get(token);
     if(timeStamp && moment(timeStamp).add(30, 'm').isAfter(moment())){

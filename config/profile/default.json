@@ -1,6 +1,7 @@
 {
+    "profile": "default",
     "log":{
-        "level":"debug"
+        "level":"DEBUG"
     },
     "server":{
         "host":"0.0.0.0",

@@ -15,5 +15,10 @@ Api.prototype.homePage = function(req, res, next, callback) {
     return callback(model);
 };
 
+Api.prototype.emptyModel = function(req, res, next, callback) {
+    var model = {};
+    return callback(model);
+};
+
 
 module.exports = new Api();

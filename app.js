@@ -7,4 +7,7 @@ var webModule = require('./src/web');
 container.register(userModule);
 container.register(webModule);
 
+//console.log(container);
 container.startServer();
+
+

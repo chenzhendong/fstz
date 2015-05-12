@@ -21,7 +21,7 @@ function EnvMgr() {
     nconf.argv().env();
 
 
-    /** Load Profile such as 'development', 'production', which will override 'default', 
+    /** Load profiles such as 'development', 'production', which will override 'default', 
      * the profile name is defined in system env as 'NODE_ENV', 
      * the profile configuration json file is on <project_root>/config/profile directory
      * */
@@ -34,6 +34,8 @@ function EnvMgr() {
     }
     
     if (configProfileDirectory && fs.existsSync(configProfileDirectory)) {
+        
+        /*strange nconf rule: 1st load profile will override 2nd load profile, against the common sense :-( */
 
         if(this.PROFILE_STORE){
             var envProfilePath = path.resolve(configProfileDirectory, envProfile + '.json');
@@ -56,6 +58,7 @@ function EnvMgr() {
         }
 
     }
+    console.log('Current "profile" variable value is ['+ nconf.get('profile') +']');
 }
 
 

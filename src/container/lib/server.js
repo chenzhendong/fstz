@@ -56,7 +56,7 @@ Server.prototype.init = function() {
     var prjRoot = path.resolve(__dirname, '..', '..', '..');
     this.mappingStaticResource(path.resolve(prjRoot, 'bower_components'), '/public/lib');
     app.get('/', function(req, res, next) {
-        res.redirect('/web/index.html');
+        res.redirect('/web/index');
     });
 };
 

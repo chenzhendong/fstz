@@ -7,13 +7,19 @@ function ErrMgr() {
 
 ErrMgr.prototype.handleError = function (err, req, res) {
 
-    if(!err) return;
+    if(!err) {
+        log.error('Unkown error with undefined error entity.');
+        return;
+    }
+    
     if(!err.level){
         err.level = 'error';
     }
+    
     if(!err.httpStatusCode){
         err.httpStatusCode = 500;
     }
+    
     err.isRestfulSvc = req.isRestful;
     
     log[err.level](err.message);
@@ -24,10 +30,7 @@ ErrMgr.prototype.handleError = function (err, req, res) {
         }).end();
     }
     else {
-        res.send(
-            '<html>' +
-            '<p>message: '+ err.httpStatusCode +'</p>' +
-            '</html>');
+        res.redirect('/web/error');
     }
 };
 

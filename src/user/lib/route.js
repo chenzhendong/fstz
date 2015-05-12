@@ -28,9 +28,18 @@ function Route(){
     };
     
     this.web = {
-        '/login.html': {
+        '/userManager': {
+            api: 'getUsersWeb',
+            view: 'userManager.swig.html',
+            roles: ['admin']
+        },
+        '/login': {
             api: 'loginWeb',
             view: 'login.swig.html'
+        },
+         '/profile': {
+            api: 'profileWeb',
+            view: 'profile.swig.html'
         }
     };
 

@@ -3,16 +3,16 @@
 module.exports = {
     rest: {},
     web: {
-        '/index.html': {
+        '/index': {
             'api': 'homePage',
             'view': 'index.swig.html'
         },
-        '/about.html': {
+        '/about': {
             'api': 'homePage',
             'view': 'about.swig.html'
         },
-        '/error.html': {
-            'api': 'homePage',
+        '/error': {
+            'api': 'emptyModel',
             'view': 'error.swig.html'
         }
         

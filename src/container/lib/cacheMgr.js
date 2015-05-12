@@ -22,3 +22,23 @@ CacheMgr.prototype.get = function(key){
 
 
 module.exports = new CacheMgr();
+
+/*
+node-cache Document Abstraction
+Since 1.0.0:
+Callback is now optional. You can also use synchronous syntax.
+
+Store a key (SET):
+myCache.set( key, val, [ ttl ], [callback] )
+Sets a key value pair. It is possible to define a ttl (in seconds).
+Returns true on success.
+
+Retrieve a key (GET):
+myCache.get( key, [callback] )
+Gets a saved value from the cache. Returns an empty object {} if not found or expired. If the value was found it returns an object with the key value pair.
+
+Delete a key (DEL):
+myCache.del( key, [callback] )
+Delete a key. Returns the number of deleted entries. A delete will never fail.
+
+*/
